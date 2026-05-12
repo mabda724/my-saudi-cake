@@ -10,6 +10,7 @@ import {
 import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n";
 import { CartProvider } from "@/lib/cart";
+import { OrdersProvider } from "@/lib/orders";
 
 import appCss from "../styles.css?url";
 
@@ -86,8 +87,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <CartProvider>
-          <Outlet />
-          <Toaster position="top-center" richColors />
+          <OrdersProvider>
+            <Outlet />
+            <Toaster position="top-center" richColors />
+          </OrdersProvider>
         </CartProvider>
       </I18nProvider>
     </QueryClientProvider>

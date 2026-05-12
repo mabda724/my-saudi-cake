@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { Sparkles, Upload, Download, Loader2 } from "lucide-react";
+import { Sparkles, Upload, Download, Loader2, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useCart } from "@/lib/cart";
+import { useOrders } from "@/lib/orders";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ const PRESETS_EN = [
 export function AIDesigner() {
   const { lang, t } = useI18n();
   const { add } = useCart();
+  const { designs, saveDesign, removeDesign } = useOrders();
   const [prompt, setPrompt] = useState("");
   const [refImage, setRefImage] = useState<string | undefined>();
   const [result, setResult] = useState<string | undefined>();
@@ -50,9 +52,12 @@ export function AIDesigner() {
         body: { prompt, imageUrl: refImage, lang },
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      setResult((data as any).image);
-      toast.success(lang === "ar" ? "تم التوليد!" : "Generated!");
+      const payload = data as any;
+      if (payload?.error && !payload?.image) throw new Error(payload.error);
+      if (!payload?.image) throw new Error(lang === "ar" ? "لم يتم توليد صورة" : "No image returned");
+      setResult(payload.image);
+      saveDesign({ prompt, image: payload.image });
+      toast.success(lang === "ar" ? "تم التوليد وتم حفظ التصميم!" : "Generated & saved!");
     } catch (e: any) {
       toast.error(e?.message ?? (lang === "ar" ? "فشل التوليد" : "Generation failed"));
     } finally {
@@ -190,6 +195,46 @@ export function AIDesigner() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-14">
+        <div className="mb-5">
+          <h3 className="font-display text-2xl font-black md:text-3xl">{t("saved_designs")}</h3>
+          <p className="text-sm text-muted-foreground">{lang === "ar" ? "محفوظة محلياً على جهازك" : "Stored locally on your device"}</p>
+        </div>
+        {designs.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+            {t("no_designs")}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {designs.map((d) => (
+              <div key={d.id} className="group overflow-hidden rounded-2xl border border-border bg-card">
+                <div className="aspect-square overflow-hidden">
+                  <img src={d.image} alt={d.prompt} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                </div>
+                <div className="p-3">
+                  <p className="line-clamp-2 text-xs text-muted-foreground">{d.prompt}</p>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => { setResult(d.image); setPrompt(d.prompt); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      className="rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground hover:brightness-110"
+                    >
+                      {t("use_design")}
+                    </button>
+                    <button
+                      onClick={() => removeDesign(d.id)}
+                      className="rounded-full p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Delete"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

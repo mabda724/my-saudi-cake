@@ -21,6 +21,7 @@ export function Nav() {
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               {t("nav_ai")}
             </Link>
+            <Link to="/orders" className="hover:text-primary transition-colors">{t("nav_orders")}</Link>
           </div>
         </div>
         <div className="flex items-center gap-3">

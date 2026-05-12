@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
+import { useOrders } from "@/lib/orders";
 import { Trash2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,6 +15,20 @@ export const Route = createFileRoute("/cart")({
 function CartPage() {
   const { items, remove, total, clear } = useCart();
   const { lang, t } = useI18n();
+  const { createOrder } = useOrders();
+  const navigate = useNavigate();
+
+  const checkout = () => {
+    if (items.length === 0) return;
+    const order = createOrder({
+      total,
+      lines: items.map((i) => ({ name: i.name, price: i.price, image: i.image })),
+      designImage: items.find((i) => i.image)?.image,
+    });
+    clear();
+    toast.success(lang === "ar" ? "تم تأكيد طلبك!" : "Order confirmed!");
+    navigate({ to: "/orders/$id", params: { id: order.id } });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,7 +84,7 @@ function CartPage() {
                   {lang === "ar" ? "إفراغ" : "Clear"}
                 </button>
                 <button
-                  onClick={() => toast.success(lang === "ar" ? "الدفع قريباً!" : "Checkout coming soon!")}
+                  onClick={checkout}
                   className="rounded-2xl bg-primary px-6 py-3 font-bold text-primary-foreground hover:brightness-110"
                 >
                   {lang === "ar" ? "إتمام الطلب" : "Checkout"}
