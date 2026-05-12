@@ -84,7 +84,7 @@ function CartPage() {
                   {lang === "ar" ? "إفراغ" : "Clear"}
                 </button>
                 <button
-                  onClick={() => toast.success(lang === "ar" ? "الدفع قريباً!" : "Checkout coming soon!")}
+                  onClick={checkout}
                   className="rounded-2xl bg-primary px-6 py-3 font-bold text-primary-foreground hover:brightness-110"
                 >
                   {lang === "ar" ? "إتمام الطلب" : "Checkout"}
