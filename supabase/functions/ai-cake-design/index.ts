@@ -67,12 +67,16 @@ Deno.serve(async (req) => {
     }
 
     const data = await r.json();
-    const generated = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!generated)
-      return new Response(JSON.stringify({ error: "لم يتم توليد صورة" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    console.log("AI gateway response", JSON.stringify(data).slice(0, 1000));
+    const msg = data.choices?.[0]?.message;
+    const generated = msg?.images?.[0]?.image_url?.url;
+    if (!generated) {
+      const reason = msg?.content || "قد يكون الطلب يخالف سياسات المحتوى (مثل شخصيات محمية بحقوق الملكية). جرّب وصفًا مختلفًا.";
+      return new Response(
+        JSON.stringify({ error: typeof reason === "string" ? reason : "لم يتم توليد صورة" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     return new Response(JSON.stringify({ image: generated }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
