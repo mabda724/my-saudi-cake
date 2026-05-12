@@ -88,6 +88,3 @@ function StatusBadge({ status }: { status: OrderStatus }) {
     </span>
   );
 }
-
-const idx = (s: OrderStatus) => ORDER_FLOW.indexOf(s);
-export { idx };
