@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { Sparkles, Upload, Download, Loader2 } from "lucide-react";
+import { Sparkles, Upload, Download, Loader2, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useCart } from "@/lib/cart";
+import { useOrders } from "@/lib/orders";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ const PRESETS_EN = [
 export function AIDesigner() {
   const { lang, t } = useI18n();
   const { add } = useCart();
+  const { designs, saveDesign, removeDesign } = useOrders();
   const [prompt, setPrompt] = useState("");
   const [refImage, setRefImage] = useState<string | undefined>();
   const [result, setResult] = useState<string | undefined>();
@@ -50,9 +52,12 @@ export function AIDesigner() {
         body: { prompt, imageUrl: refImage, lang },
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      setResult((data as any).image);
-      toast.success(lang === "ar" ? "تم التوليد!" : "Generated!");
+      const payload = data as any;
+      if (payload?.error && !payload?.image) throw new Error(payload.error);
+      if (!payload?.image) throw new Error(lang === "ar" ? "لم يتم توليد صورة" : "No image returned");
+      setResult(payload.image);
+      saveDesign({ prompt, image: payload.image });
+      toast.success(lang === "ar" ? "تم التوليد وتم حفظ التصميم!" : "Generated & saved!");
     } catch (e: any) {
       toast.error(e?.message ?? (lang === "ar" ? "فشل التوليد" : "Generation failed"));
     } finally {
