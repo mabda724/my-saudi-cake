@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import heroCake from "@/assets/hero-cake.jpg";
+import { Cake3D } from "./Cake3D";
 
 const SIZES = [
   { id: "s", ar: "صغير 6\"", en: "Small 6\"", price: 180 },
@@ -144,25 +145,22 @@ export function CakeBuilder() {
 
           {/* Preview + price */}
           <div className="lg:col-span-2">
-            <div className="relative h-[420px] overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/0 ring-1 ring-white/10 md:h-[520px]">
-              <img
-                src={heroCake}
-                alt="Custom cake preview"
-                className="h-full w-full object-cover opacity-90"
-                style={{
-                  transform: `scale(${0.85 + layers * 0.04})`,
-                  transition: "transform 0.4s ease",
-                }}
-              />
+            <div className="relative h-[420px] overflow-hidden rounded-3xl bg-gradient-to-br from-white/5 via-white/10 to-white/0 ring-1 ring-white/10 md:h-[560px]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 30% 20%, rgba(0,166,81,0.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(212,175,55,0.18), transparent 50%)",
+              }}
+            >
+              <Cake3D size={size} layers={layers} flavor={flavor} toppings={tops} />
               <div className="absolute inset-x-0 top-0 flex justify-between p-5">
                 <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur">
-                  Live Preview
+                  Live 3D Preview
                 </span>
                 <span className="rounded-full bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-widest text-ink">
-                  3D Render
+                  CGI Render
                 </span>
               </div>
-              <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/10 bg-black/50 p-4 backdrop-blur">
+              <div className="absolute inset-x-5 bottom-16 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur">
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-accent">
                   {lang === "ar" ? "اختياراتك" : "Your selection"}
                 </p>
