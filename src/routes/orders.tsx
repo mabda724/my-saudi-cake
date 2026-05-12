@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
 import { useI18n } from "@/lib/i18n";
-import { useOrders, ORDER_FLOW, type OrderStatus } from "@/lib/orders";
+import { useOrders, type OrderStatus } from "@/lib/orders";
 import { Package } from "lucide-react";
 
 export const Route = createFileRoute("/orders")({
